@@ -6,33 +6,33 @@ Python 3.6 or higher
 # Usage
 
 Download `pacecalc.py` and execute it by supplying it with a three-word sentence that's constructed like this: `[first_unit] [preposition] [second_unit]`
+
 Some examples:
-`./pacecalc.py 45:00 at 4:40` outputs `11:25km`
-`./pacecalc.py marathon in 2:01:09` outputs `2:52min/km`
-`./pacecalc.py 15km at 3:23` outputs `50:45min/km`
+- `./pacecalc.py 45:00 at 4:40` outputs `11:25km`
+- `./pacecalc.py marathon in 2:01:09` outputs `2:52min/km`
+- `./pacecalc.py 15km at 3:23` outputs `50:45min/km`
 
-The input sentences can have the following formats:
-
+## Supported sentence formats
 - `[distance] in [time]` which outputs `pace`
 - `[distance] at [pace]` which outputs `time`
 - `[time] at [pace]` which outputs `distance`
 
 ## Distance inputs
 Distance takes a number [n], which can be an integer or a double. The following input formats are accepted: 
-- `[0]`, `[n]km` or `[n]k` for kilometers. 
+- `[n]`, `[n]km` or `[n]k` for kilometers. 
 - `[n]m` for meters
 - `[n]mi` for miles
 
 There are two pre-set distances that are not prepended by a number:
-`m` or `marathon` 
-`hm` or `"half marathon"`. This last one needs to be surrounded by quotes.  
+- `m` or `marathon` 
+- `hm` or `"half marathon"`. This last one needs to be surrounded by quotes.  
 
 ## Time input
 `H:M:S`. Hours are optional, so `02:03` is 2 minutes and 3 seconds. The numbers can be zero padded, but don't have to: `01:02:03`, `1:2:3` and `1:02:3` are equivalent. 
 In fact, you can add as many leading zeros as you like and minutes and seconds can be higher than 60. You can write the previous example as `000000062:03` if you like.
 
 ## Pace input
-`M:S` as minutes per kilometer. Both minutes and seconds are required. Just like the time input leading zeros don't matter and you can add values higher than 60. Unlike the time input, you can't add hours. 
+`M:S` as minutes per kilometer. Both minutes and seconds are required. Just like the time input, leading zeros don't matter and you can add values higher than 60. Unlike the time input, you can't add hours. 
 
 # Output
 The outputs are given in this format:
@@ -47,10 +47,10 @@ The dependencies can be installed by running `poetry install`.
 If you'd like to contribute, please add tests and run `black`.
 
 # Some notes
-## Negative numbers
+### Negative numbers
 It's possible to add negative numbers to the inputs, but this isn't covered in any tests and I might add checks to prevent these inputs.
 
-## Supported sentences
+### Supported sentences
 The following sentences are supported:
 - `[distance] in [time]` (output: `pace`)
 - `[distance] at [pace]` (output: `time`)
