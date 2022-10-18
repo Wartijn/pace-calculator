@@ -6,6 +6,7 @@ from pacecalc import (
     pace_str_to_multiplier,
     create_message,
     minutes_to_time,
+    alternative_time_str_to_minutes,
 )
 
 
@@ -38,6 +39,51 @@ class TestUnits:
         assert time_str_to_minutes("01:00:00") == 60
         assert time_str_to_minutes("1:1:6") == 61.1
         assert time_str_to_minutes("24:01:00") == 1441
+
+    def test_alternative_time_str_to_minutes(self):
+        # one letter
+        assert alternative_time_str_to_minutes("1h") == 60
+        assert alternative_time_str_to_minutes("1.5h") == 90
+        assert alternative_time_str_to_minutes("1:30h") == 90
+        assert alternative_time_str_to_minutes(".5h") == 30
+
+        assert alternative_time_str_to_minutes("1m") == 1
+        assert alternative_time_str_to_minutes("1:30m") == 1.5
+        assert alternative_time_str_to_minutes("1.5m") == 1.5
+        assert alternative_time_str_to_minutes("0:20m") == 0.3333333333333333
+
+        assert alternative_time_str_to_minutes("0s") == 0
+        assert alternative_time_str_to_minutes("60s") == 1
+        assert alternative_time_str_to_minutes("90s") == 1.5
+
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, ":30h")
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, "1.5s")
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, "1:30s")
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, "1h30")
+
+        # multiple letters
+        assert alternative_time_str_to_minutes("1h30m") == 90
+        assert alternative_time_str_to_minutes("1h30s") == 60.5
+        assert alternative_time_str_to_minutes("0h30m") == 30
+        assert alternative_time_str_to_minutes("0h90m") == 90
+        assert alternative_time_str_to_minutes("30m30s") == 30.5
+        assert alternative_time_str_to_minutes("1h20m30s") == 80.5
+        assert alternative_time_str_to_minutes("0h0m90s") == 1.5
+
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, "1:30h2m")
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, "1h2.5m")
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, "1h30m4")
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, "1h30f")
+
+        # other wrong inputs
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, "4hour")
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, "4h4h")
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, "4hh")
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, "4hm")
+        assert pytest.raises(ValueError, alternative_time_str_to_minutes, "h")
+
+        # Maybe valid
+        # 10m2h
 
     def test_pace_str_to_multiplier(self):
         assert pace_str_to_multiplier("00:00") == 0

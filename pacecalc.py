@@ -1,12 +1,7 @@
 #! /bin/python3
 import argparse
+import re
 
-distance_units = [
-    {"name": "mi", "dist_in_km": 1.609344},
-    {"name": "km", "dist_in_km": 1},
-    {"name": "k", "dist_in_km": 1},
-    {"name": "m", "dist_in_km": 0.001},
-]
 
 arg_description = """
 Pace calculator is a tool that takes two of `pace`, `time` and `distance` as input and gives the third one as output.
@@ -45,6 +40,14 @@ Note: Outputs are always in kilometers. Even if the input distance is in miles o
 """
 
 
+distance_units = [
+    {"name": "mi", "dist_in_km": 1.609344},
+    {"name": "km", "dist_in_km": 1},
+    {"name": "k", "dist_in_km": 1},
+    {"name": "m", "dist_in_km": 0.001},
+]
+
+
 def distance_str_to_km(distance: str) -> float:
     if distance == "hm" or distance == "half marathon":
         return 21.0975
@@ -75,6 +78,52 @@ def time_str_to_minutes(time: str) -> float:
         hours_in_minutes = int(split_time[2]) * 60
 
     return hours_in_minutes + minutes + seconds_in_minutes
+
+
+def alternative_time_str_to_minutes(time: str) -> float:
+    # only letters that are allowed are h,m,s. Not more than once
+    allowed_letters = "hms"
+    number_of_allowed_letters = 0
+    for letter in allowed_letters:
+        count = time.count(letter)
+        if count == 1:
+            number_of_allowed_letters += 1
+        elif count > 1:
+            raise ValueError(f"{time} is not a valid input for time")
+    if number_of_allowed_letters == 1:
+        for letter in "hm":
+            pattern = re.compile(rf"^(?:\d|\.|:)+{letter}$")
+            match = re.match(pattern, time)
+            if not match:
+                continue
+            clean_match = match.group().removesuffix(letter)
+            if ":" in clean_match:
+                split_time = clean_match.split(":")
+                decimals = float(split_time[0]) + float(split_time[1]) / 60
+            else:
+                decimals = float(clean_match)
+            if letter == "h":
+                return decimals * 60
+            return decimals
+
+        try:
+            seconds = re.match(r"^\d+s$", time).group().removesuffix("s")
+            return float(seconds) / 60
+        except AttributeError:
+            raise ValueError(f"{time} is not a valid input for time")
+    if number_of_allowed_letters > 1:
+        # time_regex = re.compile(r"^(?P<hours>\d+h)?(?P<minutes>\d+m)?(?P<seconds>\d+s)?$")
+        time_regex = re.compile(
+            r"^(?:(?P<hours>\d+)h)?(?:(?P<minutes>\d+)m)?(?:(?P<seconds>\d+)s)?$"
+        )
+        match = re.match(time_regex, time)
+        if not match:
+            raise ValueError(f"{time} is not a valid input for time")
+        return (
+            float(match.group("hours") or 0) * 60
+            + float(match.group("minutes") or 0)
+            + float(match.group("seconds") or 0) / 60
+        )
 
 
 def pace_str_to_multiplier(pace: str) -> float:
