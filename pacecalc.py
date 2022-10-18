@@ -44,7 +44,6 @@ distance_units = [
     {"name": "mi", "dist_in_km": 1.609344},
     {"name": "km", "dist_in_km": 1},
     {"name": "k", "dist_in_km": 1},
-    {"name": "m", "dist_in_km": 0.001},
 ]
 
 
@@ -63,7 +62,7 @@ def distance_str_to_km(distance: str) -> float:
         raise ValueError(f"{distance} is not a valid input for distance")
 
 
-def time_str_to_minutes(time: str) -> float:
+def time_without_letters_to_minutes(time: str) -> float:
     split_time = time.split(":")
 
     if len(split_time) not in [2, 3]:
@@ -80,8 +79,7 @@ def time_str_to_minutes(time: str) -> float:
     return hours_in_minutes + minutes + seconds_in_minutes
 
 
-def alternative_time_str_to_minutes(time: str) -> float:
-    # only letters that are allowed are h,m,s. Not more than once
+def time_with_letters_to_minutes(time: str) -> float:
     allowed_letters = "hms"
     number_of_allowed_letters = 0
     for letter in allowed_letters:
@@ -124,6 +122,12 @@ def alternative_time_str_to_minutes(time: str) -> float:
             + float(match.group("minutes") or 0)
             + float(match.group("seconds") or 0) / 60
         )
+
+
+def time_str_to_minutes(time: str) -> float:
+    if any(x in time for x in "hms"):
+        return time_with_letters_to_minutes(time)
+    return time_without_letters_to_minutes(time)
 
 
 def pace_str_to_multiplier(pace: str) -> float:
@@ -176,8 +180,7 @@ def create_message(first_unit: str, preposition: str, second_unit: str) -> str:
     if preposition == "in":
         return f"{calculate_pace(distance=first_unit, time=second_unit)}min/km"
 
-    # at least for now `time` always has a colon. `distance` doesn't
-    if ":" in first_unit:
+    if ":" in first_unit or any(first_unit.endswith(x) for x in "hms"):
         return f"{calculate_distance(time=first_unit, pace=second_unit)}km"
 
     return calculate_time(distance=first_unit, pace=second_unit)
