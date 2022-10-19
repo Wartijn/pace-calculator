@@ -40,6 +40,16 @@ Note: Outputs are always in kilometers. Even if the input distance is in miles o
 """
 
 
+class InputError(Exception):
+    def __init__(self, unit, input):
+        super().__init__(self)
+        self.unit = unit
+        self.input = input
+
+    def __str__(self):
+        return f"{self.unit} is not a valid input for {self.input}"
+
+
 distance_units = [
     {"name": "mi", "dist_in_km": 1.609344},
     {"name": "km", "dist_in_km": 1},
@@ -59,14 +69,14 @@ def distance_str_to_km(distance: str) -> float:
     try:
         return float(distance)
     except ValueError:
-        raise ValueError(f"{distance} is not a valid input for distance")
+        raise InputError(distance, "distance")
 
 
 def time_without_letters_to_minutes(time: str) -> float:
     split_time = time.split(":")
 
     if len(split_time) not in [2, 3]:
-        raise ValueError(f"{time} is not a valid input for time")
+        raise InputError(time, "time")
 
     split_time.reverse()
     seconds_in_minutes = int(split_time[0]) / 60
@@ -87,7 +97,7 @@ def time_with_letters_to_minutes(time: str) -> float:
         if count == 1:
             number_of_allowed_letters += 1
         elif count > 1:
-            raise ValueError(f"{time} is not a valid input for time")
+            raise InputError(time, "time")
     if number_of_allowed_letters == 1:
         for letter in "hm":
             pattern = re.compile(rf"^(?:\d|\.|:)+{letter}$")
@@ -108,15 +118,14 @@ def time_with_letters_to_minutes(time: str) -> float:
             seconds = re.match(r"^\d+s$", time).group().removesuffix("s")
             return float(seconds) / 60
         except AttributeError:
-            raise ValueError(f"{time} is not a valid input for time")
+            raise InputError(time, "time")
     if number_of_allowed_letters > 1:
-        # time_regex = re.compile(r"^(?P<hours>\d+h)?(?P<minutes>\d+m)?(?P<seconds>\d+s)?$")
         time_regex = re.compile(
             r"^(?:(?P<hours>\d+)h)?(?:(?P<minutes>\d+)m)?(?:(?P<seconds>\d+)s)?$"
         )
         match = re.match(time_regex, time)
         if not match:
-            raise ValueError(f"{time} is not a valid input for time")
+            raise InputError(time, "time")
         return (
             float(match.group("hours") or 0) * 60
             + float(match.group("minutes") or 0)
@@ -132,7 +141,7 @@ def time_str_to_minutes(time: str) -> float:
 
 def pace_str_to_multiplier(pace: str) -> float:
     if ":" not in pace:
-        raise ValueError(f"{pace} is not a valid input for pace")
+        raise InputError(pace, "pace")
     split_pace = pace.split(":")
     return float(split_pace[0]) + float(split_pace[1]) / 60
 

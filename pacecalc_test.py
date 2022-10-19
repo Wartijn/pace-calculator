@@ -6,6 +6,7 @@ from pacecalc import (
     pace_str_to_multiplier,
     create_message,
     minutes_to_time,
+    InputError,
 )
 
 
@@ -28,7 +29,7 @@ class TestUnits:
         assert distance_str_to_km("hm") == 21.0975
 
         assert pytest.raises(ValueError, distance_str_to_km, "mi")
-        assert pytest.raises(ValueError, distance_str_to_km, "2hm")
+        assert pytest.raises(InputError, distance_str_to_km, "2hm")
 
     def test_time_str_to_minutes(self):
         assert time_str_to_minutes("00:00") == 0
@@ -54,9 +55,9 @@ class TestUnits:
         assert time_str_to_minutes("90s") == 1.5
 
         assert pytest.raises(ValueError, time_str_to_minutes, ":30h")
-        assert pytest.raises(ValueError, time_str_to_minutes, "1.5s")
-        assert pytest.raises(ValueError, time_str_to_minutes, "1:30s")
-        assert pytest.raises(ValueError, time_str_to_minutes, "1h30")
+        assert pytest.raises(InputError, time_str_to_minutes, "1.5s")
+        assert pytest.raises(InputError, time_str_to_minutes, "1:30s")
+        assert pytest.raises(InputError, time_str_to_minutes, "1h30")
 
         # multiple letters
         assert time_str_to_minutes("1h30m") == 90
@@ -67,17 +68,17 @@ class TestUnits:
         assert time_str_to_minutes("1h20m30s") == 80.5
         assert time_str_to_minutes("0h0m90s") == 1.5
 
-        assert pytest.raises(ValueError, time_str_to_minutes, "1:30h2m")
-        assert pytest.raises(ValueError, time_str_to_minutes, "1h2.5m")
-        assert pytest.raises(ValueError, time_str_to_minutes, "1h30m4")
-        assert pytest.raises(ValueError, time_str_to_minutes, "1h30f")
+        assert pytest.raises(InputError, time_str_to_minutes, "1:30h2m")
+        assert pytest.raises(InputError, time_str_to_minutes, "1h2.5m")
+        assert pytest.raises(InputError, time_str_to_minutes, "1h30m4")
+        assert pytest.raises(InputError, time_str_to_minutes, "1h30f")
 
         # other wrong inputs
-        assert pytest.raises(ValueError, time_str_to_minutes, "4hour")
-        assert pytest.raises(ValueError, time_str_to_minutes, "4h4h")
-        assert pytest.raises(ValueError, time_str_to_minutes, "4hh")
-        assert pytest.raises(ValueError, time_str_to_minutes, "4hm")
-        assert pytest.raises(ValueError, time_str_to_minutes, "h")
+        assert pytest.raises(InputError, time_str_to_minutes, "4hour")
+        assert pytest.raises(InputError, time_str_to_minutes, "4h4h")
+        assert pytest.raises(InputError, time_str_to_minutes, "4hh")
+        assert pytest.raises(InputError, time_str_to_minutes, "4hm")
+        assert pytest.raises(InputError, time_str_to_minutes, "h")
 
         # Maybe valid
         # 10m2h
@@ -121,6 +122,7 @@ class TestMessagesFromInput:
         assert create_message("10KM", "in", "1:00:00") == pace_message("6:00")
         assert create_message("10km", "in", "1h") == pace_message("6:00")
         assert create_message("10km", "in", "1h0s") == pace_message("6:00")
+        assert pytest.raises(InputError, create_message, "10k", "in", "1:00:00:00")
 
     def test_calculate_distance(self):
         assert create_message("1:00:00", "at", "6:00") == distance_message("10")
