@@ -209,6 +209,17 @@ def calculate_distance(time: str, pace: str) -> float:
     return round(distance, 2)
 
 
+# distinguishes time input from distance input. WILL fail when given pace as the argument!
+def is_time(unit: str) -> bool:
+    if unit.strip(" ").isalpha():
+        return False
+    if ":" in unit:
+        return True
+    if any(unit.endswith(x) for x in "hms"):
+        return True
+    return False
+
+
 def create_message(first_unit: str, preposition: str, second_unit: str) -> str:
     first_unit = first_unit.lower()
     preposition = preposition.lower()
@@ -217,7 +228,7 @@ def create_message(first_unit: str, preposition: str, second_unit: str) -> str:
     if preposition == "in":
         return f"{calculate_pace(distance=first_unit, time=second_unit)}min/km"
 
-    if ":" in first_unit or any(first_unit.endswith(x) for x in "hms"):
+    if is_time(first_unit):
         return f"{calculate_distance(time=first_unit, pace=second_unit)}km"
 
     return calculate_time(distance=first_unit, pace=second_unit)

@@ -133,3 +133,6 @@ class TestMessagesFromInput:
     def test_calculate_time(self):
         assert create_message("10k", "at", "6:00") == time_message("1:00:00")
         assert create_message("1.6k", "at", "6:00") == time_message("9:36")
+        assert create_message("m", "at", "5:00") == time_message("3:30:58")
+        assert create_message("hm", "at", "4:50") == time_message("1:41:58")
+        assert create_message("half marathon", "at", "4:50") == time_message("1:41:58")
