@@ -86,6 +86,8 @@ class TestUnits:
     def test_pace_str_to_multiplier(self):
         assert pace_str_to_multiplier("00:00") == 0
         assert pace_str_to_multiplier("00:30") == 0.5
+        assert pace_str_to_multiplier("0.5") == 0.5
+        assert pace_str_to_multiplier("1") == 1
         assert pace_str_to_multiplier("04:30") == 4.5
         assert pace_str_to_multiplier("4:30") == 4.5
 
@@ -129,6 +131,7 @@ class TestMessagesFromInput:
         assert create_message("57:00", "at", "6:00") == distance_message("9.5")
         assert create_message("57m", "at", "6:00") == distance_message("9.5")
         assert create_message("57m00s", "at", "6:00") == distance_message("9.5")
+        assert create_message("1h", "at", "6.5") == distance_message("9.23")
 
     def test_calculate_time(self):
         assert create_message("10k", "at", "6:00") == time_message("1:00:00")

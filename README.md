@@ -59,7 +59,8 @@ These inputs are **invalid**:
 - `1:30h20s` (only integers are allowed if you use multiple letters. Valid alternatives are: `1:30:20` and `1h30m20s`)
 
 ## Pace input
-`M:S` as minutes per kilometer. Both minutes and seconds are required. Just like the time input, leading zeros don't matter and you can add values higher than 60. Unlike the time input, you can't add hours or use letters.
+Pace input is in minutes per kilometer. This can be whole minutes (`M`), minutes and seconds (`M:S` e.g. `1:30`), or minutes with seconds as a fraction (`M.S` e.g. `1.5`).
+Just like the time input, leading zeros don't matter and you can add values higher than 60. Unlike the time input, you can't add hours or use letters.
 
 # Output
 The outputs are given in this format:
