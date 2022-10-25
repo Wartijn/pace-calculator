@@ -14,26 +14,26 @@ Some examples:
 
 arg_epilog = """
 ## Distance inputs
-Distance takes a number [n], which can be an integer or a double. The following input formats are accepted: 
-- `[n]`, `[n]km` or `[n]k` for kilometers. 
+Distance takes a number [n], which can be an integer or a double. The following input formats are accepted:
+- `[n]`, `[n]km` or `[n]k` for kilometers.
 - `[n]mi` for miles
 
 There are two pre-set distances that are not prepended by a number:
-- `m` or `marathon` 
+- `m` or `marathon`
 - `hm` or `"half marathon"`. This last one needs to be surrounded by quotes.
 
 ## Time input
 Pace Calculator accepts time input in two different formats: with or without letters.
 
 ### Without letters
-`H:M:S`. Hours are optional, so `02:03` is 2 minutes and 3 seconds. The numbers can be zero padded, but don't have to be: `01:02:03`, `1:2:3` and `1:02:3` are equivalent. 
+`H:M:S`. Hours are optional, so `02:03` is 2 minutes and 3 seconds. The numbers can be zero padded, but don't have to be: `01:02:03`, `1:2:3` and `1:02:3` are equivalent.
 
 In fact, you can add as many leading zeros as you like and minutes and seconds can be higher than 60. You can write the previous example as `000000062:03` if you like.
 
 ### With letters
 To input time with letters, enter a number [n] followed by an h, m or s for hours minutes or seconds respectively. This is the format `[n]h[n]m[n]s`, where [n] is an integer and each of the number-letter combinations is optional.
 
-If the only input is either hours or minutes, they can be entered as a double (e.g `1.5m`) or as time (e.g `1:30m`). This doesn't work for seconds, which only accepts integers. 
+If the only input is either hours or minutes, they can be entered as a double (e.g `1.5m`) or as time (e.g `1:30m`). This doesn't work for seconds, which only accepts integers.
 
 ### Time input examples
 Some examples of valid inputs:
@@ -89,12 +89,15 @@ distance_units = [
 def distance_str_to_km(distance: str) -> float:
     if distance == "hm" or distance == "half marathon":
         return 21.0975
+
     if distance == "m" or distance == "marathon":
         return 42.195
+
     for unit in distance_units:
         if distance.endswith(unit["name"]):
             distance = distance.removesuffix(unit["name"])
             return float(distance) * unit["dist_in_km"]
+        
     try:
         return float(distance)
     except ValueError:
@@ -103,19 +106,17 @@ def distance_str_to_km(distance: str) -> float:
 
 def time_without_letters_to_minutes(time: str) -> float:
     split_time = time.split(":")
-
     if len(split_time) not in [2, 3]:
         raise InputError(time, "time")
 
     split_time.reverse()
     seconds_in_minutes = int(split_time[0]) / 60
     minutes = int(split_time[1])
-    hours_in_minutes = 0
-
+    total_time = seconds_in_minutes + minutes
     if len(split_time) == 3:
-        hours_in_minutes = int(split_time[2]) * 60
+        total_time += int(split_time[2]) * 60
 
-    return hours_in_minutes + minutes + seconds_in_minutes
+    return total_time
 
 
 def time_with_letters_to_minutes(time: str) -> float:
@@ -127,6 +128,7 @@ def time_with_letters_to_minutes(time: str) -> float:
             number_of_allowed_letters += 1
         elif count > 1:
             raise InputError(time, "time")
+
     if number_of_allowed_letters == 1:
         for letter in "hm":
             pattern = re.compile(rf"^(?:\d|\.|:)+{letter}$")
@@ -148,6 +150,7 @@ def time_with_letters_to_minutes(time: str) -> float:
             return float(seconds) / 60
         except AttributeError:
             raise InputError(time, "time")
+
     if number_of_allowed_letters > 1:
         time_regex = re.compile(
             r"^(?:(?P<hours>\d+)h)?(?:(?P<minutes>\d+)m)?(?:(?P<seconds>\d+)s)?$"
@@ -155,6 +158,7 @@ def time_with_letters_to_minutes(time: str) -> float:
         match = re.match(time_regex, time)
         if not match:
             raise InputError(time, "time")
+
         return (
             float(match.group("hours") or 0) * 60
             + float(match.group("minutes") or 0)
@@ -184,14 +188,12 @@ def minutes_to_time(decimal_minutes: float, show_hours: bool) -> str:
     min_min_length = 0
     minutes, seconds = divmod(decimal_minutes, 1)
     formatted_seconds = str(round(seconds * 60)).rjust(2, "0")
-
     if decimal_minutes >= 60 and show_hours:
         whole_hours, minutes = divmod(decimal_minutes, 60)
         min_min_length = 2
         formatted_hours = f"{int(whole_hours)}:"
 
     formatted_minutes = str(int(minutes)).rjust(min_min_length, "0")
-
     return f"{formatted_hours}{formatted_minutes}:{formatted_seconds}"
 
 
@@ -229,7 +231,6 @@ def create_message(first_unit: str, preposition: str, second_unit: str) -> str:
     first_unit = first_unit.lower()
     preposition = preposition.lower()
     second_unit = second_unit.lower()
-
     if preposition == "in":
         return f"{calculate_pace(distance=first_unit, time=second_unit)}min/km"
 
