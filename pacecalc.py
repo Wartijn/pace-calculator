@@ -97,7 +97,7 @@ def distance_str_to_km(distance: str) -> float:
         if distance.endswith(unit["name"]):
             distance = distance.removesuffix(unit["name"])
             return float(distance) * unit["dist_in_km"]
-        
+
     try:
         return float(distance)
     except ValueError:
